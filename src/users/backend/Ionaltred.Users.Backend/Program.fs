@@ -3,17 +3,18 @@ namespace Ionaltred.Users.Backend
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.Hosting
+open Serilog
 
 module Program =
     let SuccessCode = 0
     let EnvironmentVariablePrefix = "Ionaltred_"
     let EnvironmentEnvironmentVariable = $"{EnvironmentVariablePrefix}_Environment"
 
-    let BuildHostBuilderConfiguration (config: IConfigurationBuilder) : unit =
+    let UseEnvironmentVariablesForHostBuilder (config: IConfigurationBuilder) : unit =
         config.AddEnvironmentVariables(EnvironmentVariablePrefix)
         |> ignore
 
-    let ConfigureAppConfiguration (config: IConfigurationBuilder, commandLineArguments: string []) : unit =
+    let UseAppsettingsAndEnvironmentVariablesForAppConfiguration (config: IConfigurationBuilder, commandLineArguments: string []) : unit =
         config
             .AddJsonFile("appsettings.json", true)
             .AddJsonFile($"appsettings.{EnvironmentEnvironmentVariable}.json", true)
@@ -21,7 +22,7 @@ module Program =
             .AddCommandLine(commandLineArguments)
         |> ignore
 
-    let ConfigureWebHost (builder: IWebHostBuilder) : unit =
+    let UseStartupToServeAtUrl (builder: IWebHostBuilder) : unit =
         builder
             .UseUrls("http://localhost:29000")
             .CaptureStartupErrors(true)
@@ -30,12 +31,20 @@ module Program =
 
     [<EntryPoint>]
     let Main args =
+        Log.Logger <- LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.File("Log/Log.txt")
+            .CreateLogger()
+
         let host =
             Host
                 .CreateDefaultBuilder()
-                .ConfigureHostConfiguration(fun config -> BuildHostBuilderConfiguration(config))
-                .ConfigureAppConfiguration(fun config -> ConfigureAppConfiguration(config, args))
-                .ConfigureWebHostDefaults(fun builder -> ConfigureWebHost(builder))
+                .UseSerilog()
+                .ConfigureHostConfiguration(UseEnvironmentVariablesForHostBuilder)
+                .ConfigureAppConfiguration(fun config -> UseAppsettingsAndEnvironmentVariablesForAppConfiguration(config, args))
+                .ConfigureWebHostDefaults(UseStartupToServeAtUrl)
                 .Build()
 
         host.Run()
