@@ -1,4 +1,8 @@
 bin/
 obj/
 
-.vscode
+.vscode/
+
+.futdcache.*
+.dtbcache.*
+.suo
