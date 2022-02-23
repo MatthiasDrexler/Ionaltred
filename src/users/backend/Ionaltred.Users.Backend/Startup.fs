@@ -2,6 +2,7 @@
 
 open System
 open System.Reflection
+open Ionaltred.Users.Backend.Domain
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Mvc.ApplicationParts
@@ -12,6 +13,8 @@ type Startup() =
     let EndpointsAssemblyPart = AssemblyPart(Assembly.Load("Ionaltred.Users.Backend.Controller"))
 
     member this.ConfigureServices(services: IServiceCollection): unit =
+        services.AddScoped<IRegisterUserService, RegisterUserService>() |> ignore
+
         services.AddControllers()
             .PartManager.ApplicationParts.Add(EndpointsAssemblyPart)
         services.AddCors(fun corsOptions ->

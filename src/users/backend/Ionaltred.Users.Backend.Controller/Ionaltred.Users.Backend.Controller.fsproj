@@ -13,4 +13,8 @@
       <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Ionaltred.Users.Backend.Domain\Ionaltred.Users.Backend.Domain.fsproj" />
+    </ItemGroup>
+
 </Project>
