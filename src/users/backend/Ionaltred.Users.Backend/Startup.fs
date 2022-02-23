@@ -1,16 +1,19 @@
 ﻿namespace Ionaltred.Users.Backend
 
 open System
+open System.Reflection
 open Microsoft.AspNetCore.Builder
-open Microsoft.AspNetCore.Cors.Infrastructure
 open Microsoft.AspNetCore.Hosting
+open Microsoft.AspNetCore.Mvc.ApplicationParts
 open Microsoft.AspNetCore.Routing
 open Microsoft.Extensions.DependencyInjection
 
 type Startup() =
+    let ControllerAssemblyPart = AssemblyPart(Assembly.Load("Ionaltred.Users.Backend.Controller"))
 
     member this.ConfigureServices(services: IServiceCollection): unit =
         services.AddControllers()
+            .PartManager.ApplicationParts.Add(ControllerAssemblyPart)
         |> ignore
 //        services.AddCors(Action<CorsOptions> (fun corsOptions ->
 //            corsOptions.AddPolicy("AllowAll", Action<CorsPolicyBuilder> (fun builder ->

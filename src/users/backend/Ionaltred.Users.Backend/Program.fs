@@ -9,15 +9,17 @@ module Program =
     let SuccessCode = 0
     let EnvironmentVariablePrefix = "Ionaltred_"
     let EnvironmentEnvironmentVariable = $"{EnvironmentVariablePrefix}_Environment"
+    let DefaultAppSettings = "appsettings.json"
+    let EnvironmentAppSettings = $"appsettings.{EnvironmentEnvironmentVariable}.json"
 
     let UseEnvironmentVariablesForHostBuilder (config: IConfigurationBuilder) : unit =
         config.AddEnvironmentVariables(EnvironmentVariablePrefix)
         |> ignore
 
-    let UseAppsettingsAndEnvironmentVariablesForAppConfiguration (config: IConfigurationBuilder, commandLineArguments: string []) : unit =
+    let UseAppSettingsAndEnvironmentVariablesForAppConfiguration (config: IConfigurationBuilder, commandLineArguments: string []) : unit =
         config
-            .AddJsonFile("appsettings.json", true)
-            .AddJsonFile($"appsettings.{EnvironmentEnvironmentVariable}.json", true)
+            .AddJsonFile(DefaultAppSettings, true)
+            .AddJsonFile(EnvironmentAppSettings, true)
             .AddEnvironmentVariables(EnvironmentVariablePrefix)
             .AddCommandLine(commandLineArguments)
         |> ignore
@@ -43,7 +45,7 @@ module Program =
                 .CreateDefaultBuilder()
                 .UseSerilog()
                 .ConfigureHostConfiguration(UseEnvironmentVariablesForHostBuilder)
-                .ConfigureAppConfiguration(fun config -> UseAppsettingsAndEnvironmentVariablesForAppConfiguration(config, args))
+                .ConfigureAppConfiguration(fun config -> UseAppSettingsAndEnvironmentVariablesForAppConfiguration(config, args))
                 .ConfigureWebHostDefaults(UseStartupToServeAtUrl)
                 .Build()
 
